@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Zup Movies</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Messages -->
+    <string name="msg_informar_termo_pesquisa">Informar termo pesquisa.</string>
+
+    <!-- Hint Descriptions -->
+    <string name="hint_search">Pesquisar</string>
+
+    <!-- Image Descriptions -->
+    <string name="desc_img_movie">movie image</string>
+
+</resources>
