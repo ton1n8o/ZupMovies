@@ -1,13 +1,22 @@
 package zup.com.br.zupmovies.domains;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.annotation.NonNull;
+
+import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Select;
+import com.google.gson.annotations.SerializedName;
+
+import java.io.ByteArrayOutputStream;
 
 /**
  * @author ton1n8o - antoniocarlos.dev@gmail.com on 3/3/16.
  */
 @Table(name = Movie.TABLE_NAME)
-public class Movie {
+public class Movie extends Model {
 
     public static final String TABLE_NAME = "movie";
 
@@ -40,17 +49,23 @@ public class Movie {
     @Column
     private String poster;
     @Column
+    private byte[] posterData;
+    @Column
     private String metascore;
     @Column
+    @SerializedName("imdbRating")
     private String imdbRating;
     @Column
     private String imdbVotes;
     @Column
+    @SerializedName("imdbID")
     private String imdbID;
     @Column
     private String type;
     @Column
     private String response;
+
+    /*Getters and Setters*/
 
     public String getTitle() {
         return title;
@@ -164,6 +179,14 @@ public class Movie {
         this.poster = poster;
     }
 
+    public byte[] getPosterData() {
+        return posterData;
+    }
+
+    public void setPosterData(byte[] posterData) {
+        this.posterData = posterData;
+    }
+
     public String getMetascore() {
         return metascore;
     }
@@ -210,6 +233,23 @@ public class Movie {
 
     public void setResponse(String response) {
         this.response = response;
+    }
+
+    public void customSave(@NonNull BitmapDrawable bd) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bd.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] imgByte = baos.toByteArray();
+        this.setPosterData(imgByte);
+        this.save();
+    }
+
+    /**
+     * Find movie by its IMDB id.
+     * @param imdbID
+     * @return Movie or null.
+     */
+    public static Movie findByImdbId(String imdbID) {
+        return new Select().from(Movie.class).where(" imdbID = ? ", imdbID).executeSingle();
     }
 
     @Override

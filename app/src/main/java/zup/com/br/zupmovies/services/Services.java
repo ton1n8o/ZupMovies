@@ -12,6 +12,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.FieldNamingPolicy;
@@ -22,6 +23,7 @@ import com.google.gson.JsonSyntaxException;
 import org.json.JSONObject;
 
 import zup.com.br.zupmovies.Constants;
+import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.domains.Movie;
 
 /**
@@ -35,6 +37,7 @@ public class Services {
     /*Constants*/
 
     private static final String TAG = "Services";
+    private static final String NOT_APPLICABLE = "N/A";
 
     /*Variables*/
 
@@ -57,8 +60,8 @@ public class Services {
 
         mImageLoader = new ImageLoader(mRequestQueue,
                 new ImageLoader.ImageCache() {
-                    private final LruCache<String, Bitmap>
-                            cache = new LruCache<String, Bitmap>(20);
+
+                    private final LruCache<String, Bitmap> cache = new LruCache<>(20);
 
                     @Override
                     public Bitmap getBitmap(String url) {
@@ -69,12 +72,14 @@ public class Services {
                     public void putBitmap(String url, Bitmap bitmap) {
                         cache.put(url, bitmap);
                     }
+
                 });
+
     }
 
     /*Public Methods*/
 
-    public void searchMovie(String searhTerm) {
+    public void searchMovie(String searhTerm, String requestTag) {
 
         if (TextUtils.isEmpty(searhTerm)) {
             Log.i(TAG, "informar termo de busca");
@@ -84,19 +89,24 @@ public class Services {
         JsonObjectRequest jsonObjectRequest =
                 buildJsonObjectRequest(buildRequestUrl(searhTerm),
                         "Erro ao processar dados do filme pesquisado.");
+        jsonObjectRequest.setTag(requestTag);
 
         addToRequestQueue(jsonObjectRequest);
+
     }
 
-    public static synchronized Services getInstance(@NonNull Context context) {
+    public static synchronized Services getInstance(@NonNull Context context, OnServiceResponse onServiceResponse) {
+
+        try {
+            mResponseHandler = onServiceResponse;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement Services.OnServiceResponse");
+        }
+
         if (mInstance == null) {
-            try {
-                mResponseHandler = (OnServiceResponse) context;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement Services.OnServiceResponse");
-            }
             mInstance = new Services(context);
         }
+
         return mInstance;
     }
 
@@ -128,6 +138,9 @@ public class Services {
                 try {
 
                     Movie m = gson.fromJson(response.toString(), Movie.class);
+                    if (NOT_APPLICABLE.equalsIgnoreCase(m.getPoster())) {
+                        m.setPoster(null);
+                    }
                     mResponseHandler.onResponse(m);
 
                 } catch (JsonSyntaxException e) {

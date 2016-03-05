@@ -3,7 +3,8 @@
     <string name="action_settings">Settings</string>
 
     <!-- Messages -->
-    <string name="msg_informar_termo_pesquisa">Informar termo pesquisa.</string>
+    <string name="msg_fill_in_search_term">Informar termo pesquisa.</string>
+    <string name="msg_movie_duplicated">Este filme já está salvo.</string>
 
     <!-- Hint Descriptions -->
     <string name="hint_search">Pesquisar</string>
