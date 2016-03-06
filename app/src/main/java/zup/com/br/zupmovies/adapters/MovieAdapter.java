@@ -1,14 +1,12 @@
 package zup.com.br.zupmovies.adapters;
 
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
 
 import java.util.List;
 
@@ -23,20 +21,18 @@ import zup.com.br.zupmovies.domains.Movie;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
     private final List<Movie> mMovies;
-    private final ImageLoader mImageLoader;
     private final OnCardClickListener mCardClickListener;
 
-    public MovieAdapter(List<Movie> movieList, ImageLoader imageLoader,
+    public MovieAdapter(List<Movie> movieList,
                         OnCardClickListener clickListener) {
         mMovies = movieList;
-        mImageLoader = imageLoader;
         mCardClickListener = clickListener;
     }
 
     @Override
     public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_view_movie, parent, false);
+                .inflate(R.layout.card_view_list_item, parent, false);
         return new MovieViewHolder(view);
     }
 
@@ -46,8 +42,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         holder.title.setText(m.getTitle());
         holder.year.setText(m.getYear());
         holder.actors.setText(m.getActors());
-        if (!TextUtils.isEmpty(m.getPoster())) {
-            holder.poster.setImageUrl(m.getPoster(), this.mImageLoader);
+        if (m.getPosterData() != null) {
+            holder.poster.setImageBitmap(
+                    BitmapFactory.decodeByteArray(m.getPosterData(), 0, m.getPosterData().length)
+            );
+        } else {
+            holder.poster.setImageResource(R.drawable.ic_zup_movies);
         }
     }
 
@@ -64,9 +64,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        @Bind(R.id.card_view) View rowItem;
-        @Bind(R.id.img_poster)
-        NetworkImageView poster;
+        @Bind(R.id.card_view_list_item) View rowItem;
+        @Bind(R.id.img_poster) ImageView poster;
         @Bind(R.id.tv_title) TextView title;
         @Bind(R.id.tv_year) TextView year;
         @Bind(R.id.tv_actors) TextView actors;

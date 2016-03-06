@@ -11,6 +11,9 @@ import com.activeandroid.query.Select;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author ton1n8o - antoniocarlos.dev@gmail.com on 3/3/16.
@@ -18,7 +21,16 @@ import java.io.ByteArrayOutputStream;
 @Table(name = Movie.TABLE_NAME)
 public class Movie extends Model {
 
+    /*Constants*/
+
     public static final String TABLE_NAME = "movie";
+
+    public static final int SORT_BY_NAME_DESC = 0;
+    public static final int SORT_BY_NAME_ASC = 1;
+    public static final int SORT_BY_YEAR_DESC = 2;
+    public static final int SORT_BY_YEAR_ASC = 3;
+    public static final int SORT_BY_DATE_DESC = 4;
+    public static final int SORT_BY_DATE_ASC = 5;
 
     @Column
     private String title;
@@ -64,6 +76,8 @@ public class Movie extends Model {
     private String type;
     @Column
     private String response;
+    @Column
+    private Date created;
 
     /*Getters and Setters*/
 
@@ -235,6 +249,14 @@ public class Movie extends Model {
         this.response = response;
     }
 
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
     public void customSave(@NonNull BitmapDrawable bd) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bd.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, baos);
@@ -250,6 +272,42 @@ public class Movie extends Model {
      */
     public static Movie findByImdbId(String imdbID) {
         return new Select().from(Movie.class).where(" imdbID = ? ", imdbID).executeSingle();
+    }
+
+    /**
+     * Find all stored movies.
+     * @param sort Movie.SORT_BY_NAME_DESC, Movie.SORT_BY_YEAR, Movie.SORT_BY_DATE,
+     *             Movie.SORT_BY_SCORE_ASC, Movie.SORT_BY_SCORE_DESC
+     * @return List<Movies>
+     */
+    public static List<Movie> findAll(int sort) {
+
+        String sortBy = " title DESC ";
+        switch (sort) {
+            case SORT_BY_NAME_DESC:
+                sortBy = " title DESC ";
+                break;
+            case SORT_BY_NAME_ASC:
+                sortBy = " title ASC ";
+                break;
+            case SORT_BY_YEAR_DESC:
+                sortBy = " year DESC ";
+                break;
+            case SORT_BY_YEAR_ASC:
+                sortBy = " year ASC ";
+                break;
+            case SORT_BY_DATE_DESC:
+                sortBy = " created DESC ";
+                break;
+            case SORT_BY_DATE_ASC:
+                sortBy = " created ASC ";
+                break;
+        }
+
+        List<Movie> l = new Select().from(Movie.class).orderBy(sortBy).execute();
+        if (l == null)
+            l = new ArrayList<>();
+        return l;
     }
 
     @Override

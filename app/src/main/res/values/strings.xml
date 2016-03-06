@@ -3,13 +3,28 @@
     <string name="action_settings">Settings</string>
 
     <!-- Messages -->
-    <string name="msg_fill_in_search_term">Informar termo pesquisa.</string>
-    <string name="msg_movie_duplicated">Este filme já está salvo.</string>
+    <string name="msg_fill_in_search_term">Fill in search term.</string>
 
     <!-- Hint Descriptions -->
-    <string name="hint_search">Pesquisar</string>
 
     <!-- Image Descriptions -->
     <string name="desc_img_movie">movie image</string>
+    <string name="lbl_plot">Pot</string>
+    <string name="str_text">Set in a future-world where humans can control other humans in mass-scale, multi-player online gaming environments, a star player from a game called (Slayers) looks to regain his independence while taking down the game\'s mastermind.</string>
+    <string name="hint_search">Search</string>
+    <string name="msg_movie_duplicated">Movie already saved.</string>
+    <string name="lbl_actors">Actors</string>
+    <string name="lbl_genre">Action, Sci-Fi</string>
+    <string name="lbl_year">2011</string>
+    <string name="lbl_movie_title">Movie Title</string>
+    <string name="lbl_director">Mark Neveldine, Brian Taylor</string>
+    <string name="lbl_score">Score IMDb:</string>
+    <string name="lbl_delete">Delete</string>
+    <string name="lbl_no_movies_saved">No movies saved, touch plus buttom to add</string>
+    <string name="msg_confirm_movie_deletion">Are you sure you want to delete?</string>
+    <string name="msg_yes">Yes</string>
+    <string name="msg_no">No</string>
+    <string name="msg_no_connection">Please connect to the internet.</string>
+    <string name="lbl_ok">OK</string>
 
 </resources>

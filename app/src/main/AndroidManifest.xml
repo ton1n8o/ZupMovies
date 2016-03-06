@@ -3,6 +3,7 @@
     package="zup.com.br.zupmovies">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name="com.activeandroid.app.Application"
@@ -28,7 +29,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.ActSearch"></activity>
+        <activity android:name=".ui.ActSearch">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ActMain" />
+        </activity>
+        <activity android:name=".ui.ActMovieDetail">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ActMain" />
+        </activity>
     </application>
 
 </manifest>

@@ -13,7 +13,18 @@
     tools:showIn="@layout/act_main">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:id="@+id/no_data"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/lbl_no_movies_saved"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+    <!-- ListView -->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/movies_card_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </RelativeLayout>

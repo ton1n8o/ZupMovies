@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -16,14 +17,20 @@ import android.widget.Toast;
 
 import com.android.volley.toolbox.NetworkImageView;
 
+import java.util.Date;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
+import zup.com.br.zupmovies.NetworkUtil;
 import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.domains.Movie;
 import zup.com.br.zupmovies.services.Services;
 
+/**
+ * @author ton1n8o - antoniocarlos.dev@gmail.com on 3/3/16.
+ */
 public class ActSearch extends AppCompatActivity implements Services.OnServiceResponse {
 
     /*Constants*/
@@ -31,15 +38,22 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
     private static final String REQUEST_TAG = "SEARCH";
 
     // View Elements
-    @Bind(R.id.edt_search) EditText edtSearch;
-    @Bind(R.id.fab_save) FloatingActionButton fabSave;
+    @Bind(R.id.edt_search)
+    EditText edtSearch;
+    @Bind(R.id.fab_save)
+    FloatingActionButton fabSave;
 
     // cardView
-    @Bind(R.id.card_view) View cardView;
-    @Bind(R.id.tv_title) TextView title;
-    @Bind(R.id.tv_year) TextView year;
-    @Bind(R.id.tv_actors) TextView actors;
-    @Bind(R.id.img_poster) NetworkImageView poster;
+    @Bind(R.id.card_view_search)
+    View cardView;
+    @Bind(R.id.tv_title)
+    TextView title;
+    @Bind(R.id.tv_year)
+    TextView year;
+    @Bind(R.id.tv_actors)
+    TextView actors;
+    @Bind(R.id.img_poster)
+    NetworkImageView poster;
 
     /*Variables*/
     private Context appCtx;
@@ -85,6 +99,8 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
                 return;
             }
 
+            movieFound.setCreated(new Date());
+
             if (movieFound.getPoster() != null) {
                 movieFound.customSave((BitmapDrawable) poster.getDrawable());
             } else {
@@ -101,6 +117,16 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
     /* Private Methods */
 
     private void doSearch() {
+
+        if (!NetworkUtil.isConected(appCtx)) {
+            new AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.msg_no_connection))
+                    .setCancelable(false)
+                    .setPositiveButton(getString(R.string.lbl_ok), null)
+                    .show();
+            return;
+        }
+
         String searchTerm = this.edtSearch.getText().toString();
         if (!TextUtils.isEmpty(searchTerm)) {
             Services.getInstance(appCtx, this).searchMovie(searchTerm, REQUEST_TAG);
@@ -129,8 +155,11 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
             if (!TextUtils.isEmpty(movie.getPoster())) {
                 poster.setImageUrl(movie.getPoster(), Services.getInstance(appCtx, this).getImageLoader());
             } else {
-                //TODO: show default image
+                poster.setDefaultImageResId(R.drawable.ic_zup_movies);
             }
+
+        } else {
+            this.setControlVisibility(View.INVISIBLE);
         }
     }
 

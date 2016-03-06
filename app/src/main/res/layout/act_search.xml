@@ -20,8 +20,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/hint_search"
             android:imeOptions="actionSearch"
-            android:singleLine="true"
-            android:text="gamer" />
+            android:singleLine="true" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -30,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/itl_search">
 
-        <include layout="@layout/card_view_movie" />
+        <include layout="@layout/card_view_search" />
     </FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
@@ -40,7 +39,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_menu_save" />
+        android:src="@drawable/ic_check_white_24dp" />
 
 </RelativeLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Zup Filmes</string>
+    <string name="action_settings">Configurações</string>
+    <string name="desc_img_movie">logo do filme</string>
+    <string name="hint_search">Buscar</string>
+    <string name="lbl_plot">Enredo</string>
+    <string name="msg_fill_in_search_term">Informar temo da pesquisa.</string>
+    <string name="msg_movie_duplicated">Este filme já está salvo.</string>
+    <string name="str_text">Algum texto bem grande que não tem uma informção relevamente mas que de qualquer forma, mesmo não sendo relevante ele está aqui e cumpre seu papel de forma excepcional, que é ocupar um grande espaço na interface deste componente.</string>
+    <string name="lbl_actors">Atores</string>
+    <string name="lbl_director">Mark Neveldine, Brian Taylor</string>
+    <string name="lbl_genre">Action, Sci-Fi</string>
+    <string name="lbl_movie_title">Nome do FIlme</string>
+    <string name="lbl_score">Nota IMDb:</string>
+    <string name="lbl_year">2011</string>
+    <string name="lbl_no_movies_saved">Não há filmes salvos, toque no botão para adicionar </string>
+    <string name="lbl_ok">OK</string>
+    <string name="msg_confirm_movie_deletion">Deseja realmente excluir?</string>
+    <string name="msg_no">Não</string>
+    <string name="msg_no_connection">Por favor conectar a internet.</string>
+    <string name="msg_yes">Sim</string>
+    <string name="lbl_delete">Excluir</string>
+</resources>
