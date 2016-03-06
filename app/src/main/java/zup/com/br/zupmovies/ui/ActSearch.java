@@ -23,7 +23,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
-import zup.com.br.zupmovies.NetworkUtil;
+import zup.com.br.zupmovies.util.NetworkUtil;
 import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.domains.Movie;
 import zup.com.br.zupmovies.services.Services;

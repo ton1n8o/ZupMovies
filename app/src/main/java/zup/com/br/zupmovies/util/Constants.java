@@ -1,4 +1,4 @@
-package zup.com.br.zupmovies;
+package zup.com.br.zupmovies.util;
 
 /**
  * @author ton1n8o - antoniocarlos.dev@gmail.com on 3/3/16.

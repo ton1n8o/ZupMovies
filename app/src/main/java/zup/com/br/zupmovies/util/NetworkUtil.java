@@ -1,4 +1,4 @@
-package zup.com.br.zupmovies;
+package zup.com.br.zupmovies.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
