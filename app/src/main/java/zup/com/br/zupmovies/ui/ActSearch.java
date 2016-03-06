@@ -160,6 +160,7 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
 
         } else {
             this.setControlVisibility(View.INVISIBLE);
+            Toast.makeText(ActSearch.this, R.string.msg_movie_not_found, Toast.LENGTH_SHORT).show();
         }
     }
 

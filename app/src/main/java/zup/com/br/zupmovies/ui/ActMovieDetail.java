@@ -10,7 +10,9 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.activeandroid.Model;
@@ -43,6 +45,9 @@ public class ActMovieDetail extends AppCompatActivity {
     TextView tvPlot;
     @Bind(R.id.actors_card_list)
     RecyclerView recyclerViewList;
+
+    @Bind(R.id.ll_card_view_plot)
+    LinearLayout llPlot;
 
     /*Variables*/
     private Movie mMovie;
@@ -122,8 +127,13 @@ public class ActMovieDetail extends AppCompatActivity {
         tvYear.setText(movie.getYear());
         tvGenre.setText(movie.getGenre());
         tvDirector.setText(movie.getDirector());
-        tvPlot.setText(movie.getPlot());
         tvScore.setText(String.format("%s %s", getResources().getString(R.string.lbl_score), movie.getImdbRating()));
+
+        if (TextUtils.isEmpty(movie.getPlot())) {
+            llPlot.setVisibility(View.GONE);
+        } else {
+            tvPlot.setText(movie.getPlot());
+        }
 
         if (movie.getPosterData() != null) {
             imageView.setImageBitmap(

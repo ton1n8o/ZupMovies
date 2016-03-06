@@ -1,15 +1,9 @@
 <resources>
     <string name="app_name">Zup Movies</string>
-    <string name="action_settings">Settings</string>
 
-    <!-- Messages -->
     <string name="msg_fill_in_search_term">Fill in search term.</string>
-
-    <!-- Hint Descriptions -->
-
-    <!-- Image Descriptions -->
     <string name="desc_img_movie">movie image</string>
-    <string name="lbl_plot">Pot</string>
+    <string name="lbl_plot">Plot</string>
     <string name="str_text">Set in a future-world where humans can control other humans in mass-scale, multi-player online gaming environments, a star player from a game called (Slayers) looks to regain his independence while taking down the game\'s mastermind.</string>
     <string name="hint_search">Search</string>
     <string name="msg_movie_duplicated">Movie already saved.</string>
@@ -18,7 +12,7 @@
     <string name="lbl_year">2011</string>
     <string name="lbl_movie_title">Movie Title</string>
     <string name="lbl_director">Mark Neveldine, Brian Taylor</string>
-    <string name="lbl_score">Score IMDb:</string>
+    <string name="lbl_score">IMDb Score:</string>
     <string name="lbl_delete">Delete</string>
     <string name="lbl_no_movies_saved">No movies saved, touch plus buttom to add</string>
     <string name="msg_confirm_movie_deletion">Are you sure you want to delete?</string>
@@ -26,5 +20,8 @@
     <string name="msg_no">No</string>
     <string name="msg_no_connection">Please connect to the internet.</string>
     <string name="lbl_ok">OK</string>
+    <string name="msg_connection_error">"Error while connecting to the server. Error: "</string>
+    <string name="msg_error_on_search">Error while processing the search data requested.</string>
+    <string name="msg_movie_not_found">Movie not found, please try again.</string>
 
 </resources>

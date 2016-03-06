@@ -12,7 +12,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.FieldNamingPolicy;
@@ -38,6 +37,7 @@ public class Services {
 
     private static final String TAG = "Services";
     private static final String NOT_APPLICABLE = "N/A";
+    private static final String NOT_FOUND = "False";
 
     /*Variables*/
 
@@ -88,7 +88,7 @@ public class Services {
 
         JsonObjectRequest jsonObjectRequest =
                 buildJsonObjectRequest(buildRequestUrl(searhTerm),
-                        "Erro ao processar dados do filme pesquisado.");
+                        mCtx.getString(R.string.msg_error_on_search));
         jsonObjectRequest.setTag(requestTag);
 
         addToRequestQueue(jsonObjectRequest);
@@ -141,6 +141,12 @@ public class Services {
                     if (NOT_APPLICABLE.equalsIgnoreCase(m.getPoster())) {
                         m.setPoster(null);
                     }
+                    if (NOT_APPLICABLE.equalsIgnoreCase(m.getPlot())) {
+                        m.setPlot(null);
+                    }
+                    if (NOT_FOUND.equalsIgnoreCase(m.getResponse())) {
+                        m = null;
+                    }
                     mResponseHandler.onResponse(m);
 
                 } catch (JsonSyntaxException e) {
@@ -153,8 +159,9 @@ public class Services {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                // TODO Auto-generated method stub
-                System.out.println("Services.onErrorResponse");
+                error.printStackTrace();
+                Log.e(TAG, error.getLocalizedMessage());
+                mResponseHandler.onError(mCtx.getString(R.string.msg_connection_error) + error.getLocalizedMessage());
             }
         });
     }
@@ -163,10 +170,10 @@ public class Services {
         return String.format("%s?t=%s&plot=full&r=json", Constants.SERVER, searchTerm);
     }
 
-    /*Inner Classes */
+    /* Inner Classes */
 
     /**
-     *
+     * Handle the server response.
      */
     public interface OnServiceResponse {
         void onResponse(Movie movie);

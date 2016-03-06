@@ -20,6 +20,8 @@
             android:layout_height="wrap_content"
             android:hint="@string/hint_search"
             android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLength="50"
             android:singleLine="true" />
 
     </android.support.design.widget.TextInputLayout>

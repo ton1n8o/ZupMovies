@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Zup Filmes</string>
-    <string name="action_settings">Configurações</string>
     <string name="desc_img_movie">logo do filme</string>
     <string name="hint_search">Buscar</string>
     <string name="lbl_plot">Enredo</string>
@@ -21,4 +20,7 @@
     <string name="msg_no_connection">Por favor conectar a internet.</string>
     <string name="msg_yes">Sim</string>
     <string name="lbl_delete">Excluir</string>
+    <string name="msg_connection_error">"Erro durante conexão com server. Erro: "</string>
+    <string name="msg_error_on_search">Erro ao processar dados do filme pesquisado.</string>
+    <string name="msg_movie_not_found">Filme não encontrado, por favor tente novamente.</string>
 </resources>
