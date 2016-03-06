@@ -23,4 +23,7 @@
     <string name="msg_connection_error">"Erro durante conexão com server. Erro: "</string>
     <string name="msg_error_on_search">Erro ao processar dados do filme pesquisado.</string>
     <string name="msg_movie_not_found">Filme não encontrado, por favor tente novamente.</string>
+    <string name="lbl_sort_by_date">Ordenar por data inclusão</string>
+    <string name="lbl_sort_by_name">Order por nome</string>
+    <string name="lbl_sort_by_year">Order by year</string>
 </resources>

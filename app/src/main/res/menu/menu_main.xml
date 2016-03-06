@@ -5,16 +5,16 @@
     <item
         android:id="@+id/action_order_by_date"
         android:orderInCategory="100"
-        android:title="Ordenar por data inclusão"
+        android:title="@string/lbl_sort_by_date"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_order_by_name"
         android:orderInCategory="100"
-        android:title="Order por nome"
+        android:title="@string/lbl_sort_by_name"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_order_by_year"
         android:orderInCategory="100"
-        android:title="Ordenar por ano"
+        android:title="@string/lbl_sort_by_year"
         app:showAsAction="never" />
 </menu>

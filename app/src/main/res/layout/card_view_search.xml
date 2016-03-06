@@ -30,7 +30,7 @@
             android:lines="2"
             android:maxLines="2"
             android:singleLine="false"
-            android:text="Movie Title"
+            android:text="@string/lbl_movie_title"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -43,7 +43,7 @@
             android:layout_below="@id/tv_title"
             android:layout_marginTop="8dp"
             android:gravity="center_vertical"
-            android:text="2011"
+            android:text="@string/lbl_year"
             android:textSize="12sp" />
 
         <TextView
@@ -57,7 +57,7 @@
             android:layout_marginTop="8dp"
             android:ellipsize="end"
             android:gravity="top"
-            android:text="Gerard Butler, Amber Valletta, Michael C. Hall, Kyra Sedgwick"
+            android:text="@string/lbl_director"
             android:textSize="12sp" />
 
 

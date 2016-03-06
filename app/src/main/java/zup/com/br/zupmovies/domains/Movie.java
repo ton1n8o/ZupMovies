@@ -2,6 +2,8 @@ package zup.com.br.zupmovies.domains;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.activeandroid.Model;
@@ -12,6 +14,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +22,7 @@ import java.util.List;
  * @author ton1n8o - antoniocarlos.dev@gmail.com on 3/3/16.
  */
 @Table(name = Movie.TABLE_NAME)
-public class Movie extends Model {
+public class Movie extends Model implements Parcelable {
 
     /*Constants*/
 
@@ -32,48 +35,31 @@ public class Movie extends Model {
     public static final int SORT_BY_DATE_DESC = 4;
     public static final int SORT_BY_DATE_ASC = 5;
 
+    public Movie() {
+    }
+
     @Column
     private String title;
     @Column
     private String year;
     @Column
-    private String rated;
-    @Column
-    private String released;
-    @Column
-    private String runtime;
-    @Column
-    private String genre;
-    @Column
     private String director;
-    @Column
-    private String writer;
     @Column
     private String actors;
     @Column
     private String plot;
     @Column
-    private String language;
-    @Column
-    private String country;
-    @Column
-    private String awards;
+    private String genre;
     @Column
     private String poster;
     @Column
     private byte[] posterData;
     @Column
-    private String metascore;
-    @Column
     @SerializedName("imdbRating")
     private String imdbRating;
     @Column
-    private String imdbVotes;
-    @Column
     @SerializedName("imdbID")
     private String imdbID;
-    @Column
-    private String type;
     @Column
     private String response;
     @Column
@@ -97,52 +83,12 @@ public class Movie extends Model {
         this.year = year;
     }
 
-    public String getRated() {
-        return rated;
-    }
-
-    public void setRated(String rated) {
-        this.rated = rated;
-    }
-
-    public String getReleased() {
-        return released;
-    }
-
-    public void setReleased(String released) {
-        this.released = released;
-    }
-
-    public String getRuntime() {
-        return runtime;
-    }
-
-    public void setRuntime(String runtime) {
-        this.runtime = runtime;
-    }
-
-    public String getGenre() {
-        return genre;
-    }
-
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
     public String getDirector() {
         return director;
     }
 
     public void setDirector(String director) {
         this.director = director;
-    }
-
-    public String getWriter() {
-        return writer;
-    }
-
-    public void setWriter(String writer) {
-        this.writer = writer;
     }
 
     public String getActors() {
@@ -161,28 +107,12 @@ public class Movie extends Model {
         this.plot = plot;
     }
 
-    public String getLanguage() {
-        return language;
+    public String getGenre() {
+        return genre;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getAwards() {
-        return awards;
-    }
-
-    public void setAwards(String awards) {
-        this.awards = awards;
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
     public String getPoster() {
@@ -201,14 +131,6 @@ public class Movie extends Model {
         this.posterData = posterData;
     }
 
-    public String getMetascore() {
-        return metascore;
-    }
-
-    public void setMetascore(String metascore) {
-        this.metascore = metascore;
-    }
-
     public String getImdbRating() {
         return imdbRating;
     }
@@ -217,28 +139,12 @@ public class Movie extends Model {
         this.imdbRating = imdbRating;
     }
 
-    public String getImdbVotes() {
-        return imdbVotes;
-    }
-
-    public void setImdbVotes(String imdbVotes) {
-        this.imdbVotes = imdbVotes;
-    }
-
     public String getImdbID() {
         return imdbID;
     }
 
     public void setImdbID(String imdbID) {
         this.imdbID = imdbID;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public String getResponse() {
@@ -265,8 +171,42 @@ public class Movie extends Model {
         this.save();
     }
 
+    /* Parcelable */
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeString(title);
+        out.writeString(year);
+        out.writeString(director);
+        out.writeString(actors);
+        out.writeString(plot);
+        out.writeString(genre);
+        out.writeString(poster);
+        out.writeByteArray(posterData);
+        out.writeString(imdbRating);
+        out.writeString(imdbID);
+        out.writeString(response);
+        out.writeSerializable(created);
+    }
+
+    private Movie(Parcel in) {
+        title = in.readString();
+        year = in.readString();
+        director = in.readString();
+        actors = in.readString();
+        plot = in.readString();
+        genre = in.readString();
+        poster = in.readString();
+        posterData = new byte[in.readInt()];
+        in.readByteArray(posterData);
+        imdbRating = in.readString();
+        response = in.readString();
+        created = (Date) in.readSerializable();
+    }
+
     /**
      * Find movie by its IMDB id.
+     *
      * @param imdbID
      * @return Movie or null.
      */
@@ -276,6 +216,7 @@ public class Movie extends Model {
 
     /**
      * Find all stored movies.
+     *
      * @param sort Movie.SORT_BY_NAME_DESC, Movie.SORT_BY_YEAR, Movie.SORT_BY_DATE,
      *             Movie.SORT_BY_SCORE_ASC, Movie.SORT_BY_SCORE_DESC
      * @return List<Movies>
@@ -311,28 +252,38 @@ public class Movie extends Model {
     }
 
     @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR
+            = new Parcelable.Creator<Movie>() {
+
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
+    @Override
     public String toString() {
         return "Movie{" +
                 "title='" + title + '\'' +
                 ", year='" + year + '\'' +
-                ", rated='" + rated + '\'' +
-                ", released='" + released + '\'' +
-                ", runtime='" + runtime + '\'' +
-                ", genre='" + genre + '\'' +
                 ", director='" + director + '\'' +
-                ", writer='" + writer + '\'' +
                 ", actors='" + actors + '\'' +
                 ", plot='" + plot + '\'' +
-                ", language='" + language + '\'' +
-                ", country='" + country + '\'' +
-                ", awards='" + awards + '\'' +
                 ", poster='" + poster + '\'' +
-                ", metascore='" + metascore + '\'' +
+                ", posterData=" + Arrays.toString(posterData) +
                 ", imdbRating='" + imdbRating + '\'' +
-                ", imdbVotes='" + imdbVotes + '\'' +
                 ", imdbID='" + imdbID + '\'' +
-                ", type='" + type + '\'' +
                 ", response='" + response + '\'' +
+                ", created=" + created +
                 '}';
     }
 }

@@ -21,9 +21,9 @@ import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONObject;
 
-import zup.com.br.zupmovies.util.Constants;
 import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.domains.Movie;
+import zup.com.br.zupmovies.util.Constants;
 
 /**
  * Classe de serviços responsável por comunicar com o server backend

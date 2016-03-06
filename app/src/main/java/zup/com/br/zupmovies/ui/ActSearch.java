@@ -23,10 +23,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
-import zup.com.br.zupmovies.util.NetworkUtil;
 import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.domains.Movie;
 import zup.com.br.zupmovies.services.Services;
+import zup.com.br.zupmovies.util.NetworkUtil;
 
 /**
  * @author ton1n8o - antoniocarlos.dev@gmail.com on 3/3/16.
@@ -36,6 +36,7 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
     /*Constants*/
 
     private static final String REQUEST_TAG = "SEARCH";
+    private static final String BUNDLE_MOVIE = "MOVIE";
 
     // View Elements
     @Bind(R.id.edt_search)
@@ -64,10 +65,15 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.act_search);
         ButterKnife.bind(this);
-        //TODO: Home Button enabled:
+
         appCtx = this.getApplicationContext();
+        if (savedInstanceState != null) {
+            movieFound = savedInstanceState.getParcelable(BUNDLE_MOVIE);
+            showMovie(movieFound);
+        }
 
         // hide controls
         setControlVisibility(View.GONE);
@@ -77,6 +83,19 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
     protected void onStop() {
         super.onStop();
         Services.getInstance(appCtx, this).getRequestQueue().cancelAll(REQUEST_TAG);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(BUNDLE_MOVIE, movieFound);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        movieFound = savedInstanceState.getParcelable(BUNDLE_MOVIE);
+        showMovie(movieFound);
     }
 
     /* Activity Controls */
@@ -146,7 +165,6 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
 
             this.movieFound = movie;
             this.setControlVisibility(View.VISIBLE);
-            System.out.println("movieFound = \n" + movie.getTitle() + "img:" + movie.getPoster());
 
             title.setText(movie.getTitle());
             year.setText(movie.getYear());
