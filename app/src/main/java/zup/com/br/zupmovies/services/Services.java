@@ -7,6 +7,7 @@ import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -21,8 +22,14 @@ import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
 import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.domains.Movie;
+import zup.com.br.zupmovies.domains.SearchResponse;
 import zup.com.br.zupmovies.util.Constants;
 
 /**
@@ -38,6 +45,8 @@ public class Services {
     private static final String TAG = "Services";
     private static final String NOT_APPLICABLE = "N/A";
     private static final String NOT_FOUND = "False";
+    private static final int PARSER_LIST = 0;
+    private static final int PARSER_DETAIL = 1;
 
     /*Variables*/
 
@@ -79,20 +88,80 @@ public class Services {
 
     /*Public Methods*/
 
-    public void searchMovie(String searhTerm, String requestTag) {
+    /**
+     * @param searhTerm  Movie name.
+     * @param requestTag Tag used to cancel all requests.
+     */
+    public void searchMovies(@NonNull String searhTerm, @NonNull String requestTag) {
 
         if (TextUtils.isEmpty(searhTerm)) {
             Log.i(TAG, "informar termo de busca");
             return;
         }
 
-        JsonObjectRequest jsonObjectRequest =
-                buildJsonObjectRequest(buildRequestUrl(searhTerm),
-                        mCtx.getString(R.string.msg_error_on_search));
-        jsonObjectRequest.setTag(requestTag);
+        JsonObjectRequest jsonObjReq = buildJsonOjbectRequest(
+                searhTerm,
+                requestTag,
+                PARSER_LIST
+        );
 
-        addToRequestQueue(jsonObjectRequest);
+        if (jsonObjReq!= null) {
+            addToRequestQueue(jsonObjReq);
+        }
 
+    }
+
+    /**
+     * @param imdbID movie imdbId.
+     * @param requestTag Tag used to cancel all requests.
+     */
+    public void searchLoadMovieDetail(@NonNull String imdbID, @NonNull String requestTag) {
+
+        if (TextUtils.isEmpty(imdbID)) {
+            Log.i(TAG, "informar imdbID");
+            return;
+        }
+
+        JsonObjectRequest jsonObjReq = buildJsonOjbectRequest(
+                imdbID,
+                requestTag,
+                PARSER_DETAIL
+        );
+
+        if (jsonObjReq!= null) {
+            addToRequestQueue(jsonObjReq);
+        }
+
+    }
+
+    /**
+     * Set a tag used to cancel all requests with it.
+     * @return JsonObjectRequest.
+     */
+    private JsonObjectRequest buildJsonOjbectRequest(String searhTerm, String requestTag, int parserType) {
+
+        try {
+
+            searhTerm = URLEncoder.encode(searhTerm, "UTF-8");
+            String url = buildSearchRequestUrl(searhTerm, parserType);
+
+            JsonObjectRequest jsonObjectRequest = buildJsonObjectRequest(url,
+                    mCtx.getString(R.string.msg_error_on_search), parserType);
+
+            jsonObjectRequest.setTag(requestTag);
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(5000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+            return jsonObjectRequest;
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+            mResponseHandler.onError(mCtx.getString(R.string.msg_url_encoding_error) + e.getMessage());
+        }
+
+        return null;
     }
 
     public static synchronized Services getInstance(@NonNull Context context, OnServiceResponse onServiceResponse) {
@@ -129,7 +198,7 @@ public class Services {
 
     /*Private Methods*/
 
-    private JsonObjectRequest buildJsonObjectRequest(String url, final String errorMessage) {
+    private JsonObjectRequest buildJsonObjectRequest(String url, final String errorMessage, final int parserType) {
         return new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -137,17 +206,24 @@ public class Services {
                 // parser do Objeto JSON
                 try {
 
-                    Movie m = gson.fromJson(response.toString(), Movie.class);
-                    if (NOT_APPLICABLE.equalsIgnoreCase(m.getPoster())) {
-                        m.setPoster(null);
+                    if (parserType == PARSER_LIST) {
+                        SearchResponse listResponse = gson.fromJson(response.toString(), SearchResponse.class);
+
+                        if (listResponse != null && listResponse.getSearch() != null) {
+                            for (Movie movie : listResponse.getSearch()) {
+                                validadeProperties(movie);
+                            }
+                            mResponseHandler.onResponse(listResponse.getSearch());
+                        } else {
+                            mResponseHandler.onResponse(new ArrayList<Movie>());
+                        }
+
+                    } else {
+
+                        Movie m = gson.fromJson(response.toString(), Movie.class);
+                        validadeProperties(m);
+                        mResponseHandler.onResponse(m);
                     }
-                    if (NOT_APPLICABLE.equalsIgnoreCase(m.getPlot())) {
-                        m.setPlot(null);
-                    }
-                    if (NOT_FOUND.equalsIgnoreCase(m.getResponse())) {
-                        m = null;
-                    }
-                    mResponseHandler.onResponse(m);
 
                 } catch (JsonSyntaxException e) {
                     e.printStackTrace();
@@ -160,14 +236,45 @@ public class Services {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
-                Log.e(TAG, error.getLocalizedMessage());
+                Log.e(TAG, error.getCause().getMessage());
                 mResponseHandler.onError(mCtx.getString(R.string.msg_connection_error) + error.getLocalizedMessage());
             }
         });
     }
 
-    private static String buildRequestUrl(String searchTerm) {
-        return String.format("%s?t=%s&plot=full&r=json", Constants.SERVER, searchTerm);
+    private Movie validadeProperties(Movie movie) {
+        if (NOT_APPLICABLE.equalsIgnoreCase(movie.getPoster())) {
+            movie.setPoster(null);
+        }
+        if (NOT_APPLICABLE.equalsIgnoreCase(movie.getPlot())) {
+            movie.setPlot(null);
+        }
+        if (NOT_APPLICABLE.equalsIgnoreCase(movie.getGenre())) {
+            movie.setGenre(null);
+        }
+        if (NOT_APPLICABLE.equalsIgnoreCase(movie.getDirector())) {
+            movie.setDirector(null);
+        }
+        if (NOT_APPLICABLE.equalsIgnoreCase(movie.getYear())) {
+            movie.setYear(null);
+        }
+        if (NOT_APPLICABLE.equalsIgnoreCase(movie.getActors())) {
+            movie.setActors(null);
+        }
+        if (NOT_APPLICABLE.equalsIgnoreCase(movie.getImdbRating())) {
+            movie.setImdbRating(null);
+        }
+        if (NOT_FOUND.equalsIgnoreCase(movie.getResponse())) {
+            movie = null;
+        }
+        return movie;
+    }
+
+    private static String buildSearchRequestUrl(String searchTerm, int parseType) {
+        if (parseType == PARSER_DETAIL) { // MOVIE
+            return String.format("%s?i=%s&plot=full&r=json", Constants.SERVER, searchTerm);
+        }
+        return String.format("%s?s=%s", Constants.SERVER, searchTerm);
     }
 
     /* Inner Classes */
@@ -178,6 +285,9 @@ public class Services {
     public interface OnServiceResponse {
         void onResponse(Movie movie);
 
+        void onResponse(List<Movie> movies);
+
         void onError(String msg);
     }
+
 }

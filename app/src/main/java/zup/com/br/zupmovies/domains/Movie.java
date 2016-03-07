@@ -1,10 +1,7 @@
 package zup.com.br.zupmovies.domains;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
@@ -12,7 +9,6 @@ import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -36,6 +32,23 @@ public class Movie extends Model implements Parcelable {
     public static final int SORT_BY_DATE_ASC = 5;
 
     public Movie() {
+    }
+
+    public Movie(String year, String title, String imdbID, String poster) {
+        this.year = year;
+        this.title = title;
+        this.imdbID = imdbID;
+        this.poster = poster;
+    }
+
+    private boolean loadImage;
+
+    public boolean isLoadImage() {
+        return loadImage;
+    }
+
+    public void setLoadImage(boolean loadImage) {
+        this.loadImage = loadImage;
     }
 
     @Column
@@ -64,6 +77,8 @@ public class Movie extends Model implements Parcelable {
     private String response;
     @Column
     private Date created;
+    @Column
+    private String type;
 
     /*Getters and Setters*/
 
@@ -163,12 +178,12 @@ public class Movie extends Model implements Parcelable {
         this.created = created;
     }
 
-    public void customSave(@NonNull BitmapDrawable bd) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bd.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] imgByte = baos.toByteArray();
-        this.setPosterData(imgByte);
-        this.save();
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     /* Parcelable */
@@ -187,6 +202,7 @@ public class Movie extends Model implements Parcelable {
         out.writeString(imdbID);
         out.writeString(response);
         out.writeSerializable(created);
+        out.writeString(type);
     }
 
     private Movie(Parcel in) {
@@ -197,11 +213,15 @@ public class Movie extends Model implements Parcelable {
         plot = in.readString();
         genre = in.readString();
         poster = in.readString();
-        posterData = new byte[in.readInt()];
-        in.readByteArray(posterData);
+        posterData = (in.readInt() < 0 ? null : new byte[in.readInt()]);
+        if (posterData != null) {
+            in.readByteArray(posterData);
+        }
         imdbRating = in.readString();
+        imdbID = in.readString();
         response = in.readString();
         created = (Date) in.readSerializable();
+        type = in.readString();
     }
 
     /**

@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="3dp"
             android:layout_marginStart="3dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="3dp"
             android:layout_toEndOf="@id/img_poster"
             android:layout_toRightOf="@id/img_poster"
             android:gravity="top"
@@ -34,13 +34,25 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tv_year"
+            android:id="@+id/tv_director"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@id/tv_title"
             android:layout_alignStart="@id/tv_title"
             android:layout_below="@id/tv_title"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="5dp"
+            android:gravity="center_vertical"
+            android:text="@string/lbl_director"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tv_title"
+            android:layout_alignStart="@id/tv_title"
+            android:layout_below="@id/tv_director"
+            android:layout_marginTop="4dp"
             android:gravity="center_vertical"
             android:text="@string/lbl_year"
             android:textSize="12sp" />
@@ -53,14 +65,11 @@
             android:layout_alignLeft="@id/tv_title"
             android:layout_alignStart="@id/tv_title"
             android:layout_below="@id/tv_year"
-            android:layout_marginEnd="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="5dp"
             android:ellipsize="end"
             android:gravity="top"
-            android:text="@string/lbl_actors"
+            android:text="@string/lbl_director"
             android:textSize="12sp" />
-
 
     </RelativeLayout>
 

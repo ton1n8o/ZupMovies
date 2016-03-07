@@ -1,64 +1,62 @@
 package zup.com.br.zupmovies.ui;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.toolbox.NetworkImageView;
-
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.OnEditorAction;
 import zup.com.br.zupmovies.R;
+import zup.com.br.zupmovies.adapters.MovieAdapter;
 import zup.com.br.zupmovies.domains.Movie;
 import zup.com.br.zupmovies.services.Services;
+import zup.com.br.zupmovies.util.Constants;
 import zup.com.br.zupmovies.util.NetworkUtil;
+import zup.com.br.zupmovies.util.Util;
 
 /**
  * @author ton1n8o - antoniocarlos.dev@gmail.com on 3/3/16.
  */
-public class ActSearch extends AppCompatActivity implements Services.OnServiceResponse {
+public class ActSearch extends AppCompatActivity implements
+        Services.OnServiceResponse, MovieAdapter.OnCardClickListener {
 
     /*Constants*/
 
     private static final String REQUEST_TAG = "SEARCH";
-    private static final String BUNDLE_MOVIE = "MOVIE";
+    public static final String MOVIE = "MOVIE";
+    private static final String MOVIES_LIST = "MOVIES_LIST";
 
     // View Elements
     @Bind(R.id.edt_search)
     EditText edtSearch;
-    @Bind(R.id.fab_save)
-    FloatingActionButton fabSave;
-
-    // cardView
-    @Bind(R.id.card_view_search)
-    View cardView;
-    @Bind(R.id.tv_title)
-    TextView title;
-    @Bind(R.id.tv_year)
-    TextView year;
-    @Bind(R.id.tv_actors)
-    TextView actors;
-    @Bind(R.id.img_poster)
-    NetworkImageView poster;
+    @Bind(R.id.movies_card_list)
+    RecyclerView recyclerViewList;
+    @Bind(R.id.no_data)
+    TextView tvNodata;
 
     /*Variables*/
     private Context appCtx;
-    private Movie movieFound;
+    private ArrayList<Movie> moviesList;
+    private ProgressDialog mProgress;
+    private MovieAdapter mMovieAdapter;
+    private boolean updateHomeOnback;
 
     /* Activity Lifecycle */
 
@@ -69,33 +67,49 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
         setContentView(R.layout.act_search);
         ButterKnife.bind(this);
 
+        this.setupRecyclerView();
+
         appCtx = this.getApplicationContext();
         if (savedInstanceState != null) {
-            movieFound = savedInstanceState.getParcelable(BUNDLE_MOVIE);
-            showMovie(movieFound);
+            moviesList = savedInstanceState.getParcelableArrayList(MOVIES_LIST);
+            showMovies(moviesList);
         }
 
-        // hide controls
-        setControlVisibility(View.GONE);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Services.getInstance(appCtx, this).getRequestQueue().cancelAll(REQUEST_TAG);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(BUNDLE_MOVIE, movieFound);
+        outState.putParcelableArrayList(MOVIES_LIST, moviesList);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        movieFound = savedInstanceState.getParcelable(BUNDLE_MOVIE);
-        showMovie(movieFound);
+        moviesList = savedInstanceState.getParcelableArrayList(MOVIES_LIST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Constants.MOVIE_UPDATE && data != null && data.getBooleanExtra("UPDATE", false)) {
+            if (resultCode == RESULT_OK && !updateHomeOnback) { // movie deleted/created.
+                updateHomeOnback = true;
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent();
+        i.putExtra("UPDATE", updateHomeOnback);
+        setResult(RESULT_OK, i);
+        finish();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Services.getInstance(appCtx, this).getRequestQueue().cancelAll(REQUEST_TAG);
     }
 
     /* Activity Controls */
@@ -109,46 +123,30 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
         return false;
     }
 
-    @OnClick(R.id.fab_save)
-    public void actoinSave() {
-        if (movieFound != null) {
-
-            if (Movie.findByImdbId(movieFound.getImdbID()) != null) {
-                Toast.makeText(this, R.string.msg_movie_duplicated, Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            movieFound.setCreated(new Date());
-
-            if (movieFound.getPoster() != null) {
-                movieFound.customSave((BitmapDrawable) poster.getDrawable());
-            } else {
-                movieFound.save();
-            }
-
-            // finish and notify the main activity to reload its content.
-            setResult(RESULT_OK);
-            finish();
-
-        }
-    }
-
     /* Private Methods */
+
+    private void setupRecyclerView() {
+        recyclerViewList.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerViewList.setLayoutManager(llm);
+    }
 
     private void doSearch() {
 
         if (!NetworkUtil.isConected(appCtx)) {
-            new AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.msg_no_connection))
-                    .setCancelable(false)
-                    .setPositiveButton(getString(R.string.lbl_ok), null)
-                    .show();
+            Util.createDialog(this, null, getString(R.string.msg_no_connection)).show();
             return;
         }
 
         String searchTerm = this.edtSearch.getText().toString();
         if (!TextUtils.isEmpty(searchTerm)) {
-            Services.getInstance(appCtx, this).searchMovie(searchTerm, REQUEST_TAG);
+
+            mProgress = Util.createProgressDialog(this, getString(R.string.msg_title_please_wait),
+                    getString(R.string.msg_searching));
+            mProgress.show();
+
+            Services.getInstance(appCtx, this).searchMovies(searchTerm, REQUEST_TAG);
         } else {
             Toast.makeText(this, R.string.msg_fill_in_search_term, Toast.LENGTH_LONG).show();
         }
@@ -160,42 +158,67 @@ public class ActSearch extends AppCompatActivity implements Services.OnServiceRe
         imm.hideSoftInputFromWindow(this.edtSearch.getWindowToken(), 0);
     }
 
-    private void showMovie(Movie movie) {
-        if (movie != null) {
+    private void showMovies(List<Movie> listMovies) {
 
-            this.movieFound = movie;
-            this.setControlVisibility(View.VISIBLE);
-
-            title.setText(movie.getTitle());
-            year.setText(movie.getYear());
-            actors.setText(movie.getActors());
-
-            if (!TextUtils.isEmpty(movie.getPoster())) {
-                poster.setImageUrl(movie.getPoster(), Services.getInstance(appCtx, this).getImageLoader());
-            } else {
-                poster.setDefaultImageResId(R.drawable.ic_zup_movies);
-            }
-
-        } else {
-            this.setControlVisibility(View.INVISIBLE);
-            Toast.makeText(ActSearch.this, R.string.msg_movie_not_found, Toast.LENGTH_SHORT).show();
+        if (listMovies == null || listMovies.isEmpty()) {
+            Util.createDialog(this, null, getResources().getString(R.string.msg_movie_not_found)).show();
+            return;
         }
+
+        this.moviesList = (ArrayList<Movie>) listMovies;
+
+        this.mMovieAdapter = new MovieAdapter(
+                listMovies,
+                Services.getInstance(appCtx, this).getImageLoader(),
+                true,
+                this
+        );
+        recyclerViewList.setAdapter(this.mMovieAdapter);
+        tvNodata.setVisibility(listMovies.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
-    private void setControlVisibility(int visibility) {
-        this.fabSave.setVisibility(visibility);
-        this.cardView.setVisibility(visibility);
+    private void showMovieDetails(Movie movie) {
+        Intent i = new Intent(this, ActMovieDetail.class);
+        i.putExtra(MOVIE, movie);
+        this.startActivityForResult(i, Constants.MOVIE_UPDATE);
+    }
+
+    private void hideProgress() {
+        if (mProgress != null && mProgress.isShowing()) {
+            mProgress.cancel();
+        }
     }
 
     // Services.OnServiceResponse
 
     @Override
     public void onResponse(Movie movie) {
-        this.showMovie(movie);
+
+    }
+
+    @Override
+    public void onResponse(List<Movie> movies) {
+        hideProgress();
+        showMovies(movies);
     }
 
     @Override
     public void onError(String msg) {
+        hideProgress();
+        Util.createDialog(this, "Error", msg).show();
+    }
 
+    // MovieAdapter.OnCardClickListener
+
+    @Override
+    public void onCardClick(int position, ImageView imageView) {
+        Movie m = this.mMovieAdapter.getItem(position);
+
+        if (!NetworkUtil.isConected(appCtx)) {
+            Util.createDialog(this, null, getString(R.string.msg_no_connection)).show();
+            return;
+        }
+
+        this.showMovieDetails(m);
     }
 }

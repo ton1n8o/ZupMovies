@@ -7,4 +7,6 @@ public class Constants {
 
     public static final String SERVER = "http://www.omdbapi.com/";
 
+    public static final int MOVIE_UPDATE = 1;
+
 }

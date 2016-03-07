@@ -26,5 +26,11 @@
     <string name="lbl_sort_by_name">Order by name</string>
     <string name="lbl_sort_by_date">Order by insertion date</string>
     <string name="lbl_sort_by_year">Ordenar por ano</string>
+    <string name="msg_info">Information</string>
+    <string name="msg_searching">Searching...</string>
+    <string name="msg_title_please_wait">Please wait</string>
+    <string name="msb_movie_saved">Movie saved</string>
+    <string name="msg_loading">Loading...</string>
+    <string name="msg_url_encoding_error">"Url encoding error: "</string>
 
 </resources>

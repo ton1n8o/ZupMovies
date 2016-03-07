@@ -26,4 +26,10 @@
     <string name="lbl_sort_by_date">Ordenar por data inclusão</string>
     <string name="lbl_sort_by_name">Order por nome</string>
     <string name="lbl_sort_by_year">Order by year</string>
+    <string name="msg_title_please_wait">Por favor aguarde</string>
+    <string name="msg_searching">Pesquiando...</string>
+    <string name="msg_info">Informação</string>
+    <string name="msb_movie_saved">Filmo salvo</string>
+    <string name="msg_loading">Carregando...</string>
+    <string name="msg_url_encoding_error">"Erro ao montar url: "</string>
 </resources>

@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import butterknife.OnClick;
 import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.adapters.MovieAdapter;
 import zup.com.br.zupmovies.domains.Movie;
+import zup.com.br.zupmovies.util.Constants;
 
 /**
  * @author ton1n8o - antoniocarlos.dev@gmail.com on 3/3/16.
@@ -27,14 +29,13 @@ public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardCli
 
     /*Constants*/
 
-    private static final int SAVE_MOVIE = 1;
-    private static final int MOVIE_DELETED = 2;
-
     public static final String MOVIE_ID = "MOVIE_ID";
 
     // View Elements
-    @Bind(R.id.movies_card_list) RecyclerView recyclerViewList;
-    @Bind(R.id.no_data) TextView tvNodata;
+    @Bind(R.id.movies_card_list)
+    RecyclerView recyclerViewList;
+    @Bind(R.id.no_data)
+    TextView tvNodata;
 
     /*Variables*/
     private MovieAdapter mMovieAdapter;
@@ -58,7 +59,7 @@ public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardCli
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SAVE_MOVIE || requestCode == MOVIE_DELETED) {
+        if (data != null && data.getBooleanExtra("UPDATE", false)) {
             if (resultCode == RESULT_OK) { // movie created/deleted.
                 showMovies(Movie.findAll(Movie.SORT_BY_DATE_DESC));
             }
@@ -103,7 +104,7 @@ public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardCli
             }
             case android.R.id.home:
                 // ProjectsActivity is my 'home' activity
-                super. onBackPressed();
+                super.onBackPressed();
                 return true;
         }
 
@@ -112,7 +113,7 @@ public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardCli
 
     @OnClick(R.id.fabAddMovie)
     void showSearch() {
-        this.startActivityForResult(new Intent(this, ActSearch.class), SAVE_MOVIE);
+        this.startActivityForResult(new Intent(this, ActSearch.class), Constants.MOVIE_UPDATE);
     }
 
     /* Private Methods */
@@ -133,13 +134,13 @@ public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardCli
     private void showMovieDetails(Movie movie) {
         Intent i = new Intent(this, ActMovieDetail.class);
         i.putExtra(MOVIE_ID, movie.getId());
-        this.startActivityForResult(i, MOVIE_DELETED);
+        this.startActivityForResult(i, Constants.MOVIE_UPDATE);
     }
 
     // MovieAdapter.OnCardClickListener
 
     @Override
-    public void onCardClick(int position) {
+    public void onCardClick(int position, ImageView imageView) {
         Movie m = this.mMovieAdapter.getItem(position);
         this.showMovieDetails(m);
     }

@@ -12,10 +12,10 @@
             android:id="@+id/img_poster"
             android:layout_width="85dp"
             android:layout_height="125dp"
-            android:layout_centerVertical="true"
             android:layout_margin="5dp"
             android:contentDescription="@string/desc_img_movie"
-            android:scaleType="centerInside" />
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_zup_movies" />
 
         <TextView
             android:id="@+id/tv_title"
