@@ -115,11 +115,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         @Override
         public void onClick(View v) {
-            mCardClickListener.onCardClick(getAdapterPosition(), poster);
+            mCardClickListener.onCardClick(getAdapterPosition());
         }
     }
 
     public interface OnCardClickListener {
-        void onCardClick(int position, ImageView imgPoster);
+        void onCardClick(int position);
     }
 }

@@ -32,5 +32,6 @@
     <string name="msb_movie_saved">Movie saved</string>
     <string name="msg_loading">Loading...</string>
     <string name="msg_url_encoding_error">"Url encoding error: "</string>
+    <string name="msg_error">Error</string>
 
 </resources>

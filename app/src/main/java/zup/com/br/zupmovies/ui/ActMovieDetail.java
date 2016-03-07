@@ -83,6 +83,7 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_movie_detail);
+
         ButterKnife.bind(this);
 
         mProgress = Util.createProgressDialog(this, getString(R.string.msg_title_please_wait),
@@ -91,8 +92,6 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
 
         this.initView(View.INVISIBLE);
         this.setupRecyclerView();
-
-        appCtx = this.getApplicationContext();
 
         Bundle b = this.getIntent().getExtras();
         if (b != null) {
@@ -110,9 +109,9 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    public void onBackPressed() {
         Services.getInstance(appCtx, this).getRequestQueue().cancelAll(REQUEST_TAG);
+        super.onBackPressed();
     }
 
     /* Activity Controls */
@@ -206,9 +205,12 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
 
     private void showMovie(Movie movie) {
 
-        if (movie == null) {
+        hideProgress();
+        this.mMovie = movie;
+
+        if (movie == null || "False".equalsIgnoreCase(movie.getResponse())) {
             new AlertDialog.Builder(this)
-                    .setMessage("Problemas ao exibir dados para este filme.")
+                    .setMessage(R.string.msg_error_on_search)
                     .setCancelable(false)
                     .setPositiveButton(getString(R.string.lbl_ok), new DialogInterface.OnClickListener() {
                         @Override
@@ -221,7 +223,7 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
         }
 
         this.initView(View.VISIBLE);
-        this.mMovie = movie;
+
 
         Util.setText(tvTitle, movie.getTitle());
         Util.setText(tvGenre, movie.getGenre());
@@ -259,17 +261,17 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
             tvLabelActors.setVisibility(View.GONE);
         }
 
-        if (mProgress != null && mProgress.isShowing()) {
-            mProgress.cancel();
-        }
-
     }
 
     private void loadDetails(Movie movie) {
+        hideProgress();
         if (!TextUtils.isEmpty(movie.getImdbID())) {
+            //TODO: avaliar...
             Services.getInstance(appCtx, this).searchLoadMovieDetail(movie.getImdbID(), REQUEST_TAG);
+//            Services.getInstanceAsync(this).searchAsync(movie.getImdbID());
         } else {
-            this.finish();
+            Toast.makeText(this, R.string.msg_error_on_search, Toast.LENGTH_LONG).show();
+            onBackPressed();
         }
     }
 
@@ -285,6 +287,12 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
         tvLabelActors.setVisibility(visilibity);
     }
 
+    private void hideProgress() {
+        if (mProgress != null && mProgress.isShowing()) {
+            mProgress.cancel();
+        }
+    }
+
     // Services.OnServiceResponse
 
     @Override
@@ -294,11 +302,12 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
 
     @Override
     public void onResponse(List<Movie> movies) {
-
+        hideProgress();
     }
 
     @Override
     public void onError(String msg) {
-
+        hideProgress();
+        Util.createDialog(this, getResources().getString(R.string.msg_error), msg).show();
     }
 }

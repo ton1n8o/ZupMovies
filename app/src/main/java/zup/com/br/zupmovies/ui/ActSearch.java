@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -205,13 +204,13 @@ public class ActSearch extends AppCompatActivity implements
     @Override
     public void onError(String msg) {
         hideProgress();
-        Util.createDialog(this, "Error", msg).show();
+        Util.createDialog(this, getResources().getString(R.string.msg_error), msg).show();
     }
 
     // MovieAdapter.OnCardClickListener
 
     @Override
-    public void onCardClick(int position, ImageView imageView) {
+    public void onCardClick(int position) {
         Movie m = this.mMovieAdapter.getItem(position);
 
         if (!NetworkUtil.isConected(appCtx)) {

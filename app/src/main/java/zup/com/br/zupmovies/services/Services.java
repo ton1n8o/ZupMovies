@@ -2,6 +2,7 @@ package zup.com.br.zupmovies.services;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
@@ -19,6 +20,8 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.json.JSONObject;
 
@@ -27,6 +30,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.msebera.android.httpclient.Header;
 import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.domains.Movie;
 import zup.com.br.zupmovies.domains.SearchResponse;
@@ -51,6 +55,7 @@ public class Services {
     /*Variables*/
 
     private static Services mInstance;
+    private static Services mInstanceAsynHttp;
     private static Context mCtx;
     private static OnServiceResponse mResponseHandler;
 
@@ -59,6 +64,8 @@ public class Services {
     private Gson gson = new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
             .create();
+
+    private static AsyncHttpClient asyncHttpClient;
 
     /*Constructors*/
 
@@ -84,6 +91,36 @@ public class Services {
 
                 });
 
+    }
+
+    private Services() {
+    }
+
+    public static Services getInstanceAsync(OnServiceResponse onServiceResponse) {
+
+        try {
+            mResponseHandler = onServiceResponse;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(mCtx.toString() + " must implement Services.OnServiceResponse");
+        }
+
+        if (mInstanceAsynHttp == null) {
+            mInstanceAsynHttp = new Services();
+            asyncHttpClient = new AsyncHttpClient();
+            asyncHttpClient.setTimeout(60 * 1000); // 1 minute
+        }
+        return mInstanceAsynHttp;
+    }
+
+    public void searchAsync(String searchTerm) {
+        try {
+            searchTerm = URLEncoder.encode(searchTerm.trim(), "UTF-8");
+            String url = buildSearchRequestUrl(searchTerm, PARSER_DETAIL);
+            asyncHttpClient.get(url, null, new MyAsyncHttpResponseHandler(Looper.getMainLooper()));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            mResponseHandler.onError(mCtx.getString(R.string.msg_url_encoding_error) + e.getMessage());
+        }
     }
 
     /*Public Methods*/
@@ -142,7 +179,7 @@ public class Services {
 
         try {
 
-            searhTerm = URLEncoder.encode(searhTerm, "UTF-8");
+            searhTerm = URLEncoder.encode(searhTerm.trim(), "UTF-8");
             String url = buildSearchRequestUrl(searhTerm, parserType);
 
             JsonObjectRequest jsonObjectRequest = buildJsonObjectRequest(url,
@@ -236,13 +273,12 @@ public class Services {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
-                Log.e(TAG, error.getCause().getMessage());
                 mResponseHandler.onError(mCtx.getString(R.string.msg_connection_error) + error.getLocalizedMessage());
             }
         });
     }
 
-    private Movie validadeProperties(Movie movie) {
+    private static Movie validadeProperties(Movie movie) {
         if (NOT_APPLICABLE.equalsIgnoreCase(movie.getPoster())) {
             movie.setPoster(null);
         }
@@ -284,10 +320,31 @@ public class Services {
      */
     public interface OnServiceResponse {
         void onResponse(Movie movie);
-
         void onResponse(List<Movie> movies);
-
         void onError(String msg);
     }
 
+    private class MyAsyncHttpResponseHandler extends AsyncHttpResponseHandler {
+
+        public MyAsyncHttpResponseHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+            Gson gson = new GsonBuilder()
+                    .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                    .create();
+
+            Movie listResponse = gson.fromJson(new String(responseBody), Movie.class);
+            mResponseHandler.onResponse(validadeProperties(listResponse));
+
+        }
+
+        @Override
+        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable throwable) {
+            mResponseHandler.onError(throwable.getMessage());
+        }
+    }
 }

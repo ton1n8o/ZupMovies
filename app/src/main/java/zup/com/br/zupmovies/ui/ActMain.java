@@ -9,7 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -140,7 +139,7 @@ public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardCli
     // MovieAdapter.OnCardClickListener
 
     @Override
-    public void onCardClick(int position, ImageView imageView) {
+    public void onCardClick(int position) {
         Movie m = this.mMovieAdapter.getItem(position);
         this.showMovieDetails(m);
     }

@@ -41,7 +41,7 @@
             android:layout_alignLeft="@id/tv_title"
             android:layout_alignStart="@id/tv_title"
             android:layout_below="@id/tv_title"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="2dp"
             android:gravity="center_vertical"
             android:text="@string/lbl_year"
             android:textSize="12sp" />
@@ -53,7 +53,7 @@
             android:layout_alignLeft="@id/tv_title"
             android:layout_alignStart="@id/tv_title"
             android:layout_below="@id/tv_year"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:ellipsize="end"
             android:gravity="top"
             android:text="@string/lbl_genre"
@@ -66,9 +66,10 @@
             android:layout_alignLeft="@id/tv_title"
             android:layout_alignStart="@id/tv_title"
             android:layout_below="@id/tv_genre"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="3dp"
             android:ellipsize="end"
             android:gravity="top"
+            android:lines="2"
             android:text="@string/lbl_director"
             android:textSize="13sp" />
 
