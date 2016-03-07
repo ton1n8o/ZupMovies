@@ -129,7 +129,9 @@ public class Services {
      * @param searhTerm  Movie name.
      * @param requestTag Tag used to cancel all requests.
      */
-    public void searchMovies(@NonNull String searhTerm, @NonNull String requestTag) {
+    public void searchMovies(OnServiceResponse onServiceResponse, @NonNull String searhTerm, @NonNull String requestTag) {
+
+        mResponseHandler = onServiceResponse;
 
         if (TextUtils.isEmpty(searhTerm)) {
             Log.i(TAG, "informar termo de busca");
@@ -152,7 +154,9 @@ public class Services {
      * @param imdbID movie imdbId.
      * @param requestTag Tag used to cancel all requests.
      */
-    public void searchLoadMovieDetail(@NonNull String imdbID, @NonNull String requestTag) {
+    public void searchLoadMovieDetail(OnServiceResponse onServiceResponse, @NonNull String imdbID, @NonNull String requestTag) {
+
+        mResponseHandler = onServiceResponse;
 
         if (TextUtils.isEmpty(imdbID)) {
             Log.i(TAG, "informar imdbID");
@@ -201,18 +205,10 @@ public class Services {
         return null;
     }
 
-    public static synchronized Services getInstance(@NonNull Context context, OnServiceResponse onServiceResponse) {
-
-        try {
-            mResponseHandler = onServiceResponse;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement Services.OnServiceResponse");
-        }
-
+    public static synchronized Services getInstance(@NonNull Context appContext) {
         if (mInstance == null) {
-            mInstance = new Services(context);
+            mInstance = new Services(appContext);
         }
-
         return mInstance;
     }
 
@@ -229,7 +225,8 @@ public class Services {
         getRequestQueue().add(req);
     }
 
-    public ImageLoader getImageLoader() {
+    public ImageLoader getImageLoader(OnServiceResponse onServiceResponse) {
+        mResponseHandler = onServiceResponse;
         return mImageLoader;
     }
 

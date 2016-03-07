@@ -83,8 +83,9 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_movie_detail);
-
         ButterKnife.bind(this);
+
+        appCtx = this.getApplicationContext();
 
         mProgress = Util.createProgressDialog(this, getString(R.string.msg_title_please_wait),
                 getString(R.string.msg_loading));
@@ -110,7 +111,7 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
 
     @Override
     public void onBackPressed() {
-        Services.getInstance(appCtx, this).getRequestQueue().cancelAll(REQUEST_TAG);
+        Services.getInstance(appCtx).getRequestQueue().cancelAll(REQUEST_TAG);
         super.onBackPressed();
     }
 
@@ -190,6 +191,9 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
     private void deleteMovie() {
         // finish and notify the main activity to reload its content.
         Movie.delete(Movie.class, this.mMovie.getId());
+
+        Toast.makeText(this, R.string.msg_movie_deleted, Toast.LENGTH_LONG).show();
+
         Intent i = new Intent();
         i.putExtra("UPDATE", true);
         setResult(RESULT_OK, i);
@@ -248,7 +252,7 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
                     BitmapFactory.decodeByteArray(movie.getPosterData(), 0, movie.getPosterData().length)
             );
         } else if (!TextUtils.isEmpty(movie.getPoster())) {
-            Services.getInstance(appCtx, this).getImageLoader().get(movie.getPoster(), ImageLoader.getImageListener(
+            Services.getInstance(appCtx).getImageLoader(this).get(movie.getPoster(), ImageLoader.getImageListener(
                     imageView, R.drawable.ic_zup_movies, R.drawable.ic_zup_movies
             ));
         } else {
@@ -264,10 +268,9 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
     }
 
     private void loadDetails(Movie movie) {
-        hideProgress();
         if (!TextUtils.isEmpty(movie.getImdbID())) {
             //TODO: avaliar...
-            Services.getInstance(appCtx, this).searchLoadMovieDetail(movie.getImdbID(), REQUEST_TAG);
+            Services.getInstance(appCtx).searchLoadMovieDetail(this, movie.getImdbID(), REQUEST_TAG);
 //            Services.getInstanceAsync(this).searchAsync(movie.getImdbID());
         } else {
             Toast.makeText(this, R.string.msg_error_on_search, Toast.LENGTH_LONG).show();

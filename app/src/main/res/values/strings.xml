@@ -33,5 +33,6 @@
     <string name="msg_loading">Loading...</string>
     <string name="msg_url_encoding_error">"Url encoding error: "</string>
     <string name="msg_error">Error</string>
+    <string name="msg_movie_deleted">Movie deleted</string>
 
 </resources>

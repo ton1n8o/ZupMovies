@@ -62,7 +62,6 @@ public class ActSearch extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.act_search);
         ButterKnife.bind(this);
 
@@ -108,7 +107,7 @@ public class ActSearch extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-        Services.getInstance(appCtx, this).getRequestQueue().cancelAll(REQUEST_TAG);
+        Services.getInstance(appCtx).getRequestQueue().cancelAll(REQUEST_TAG);
     }
 
     /* Activity Controls */
@@ -145,7 +144,7 @@ public class ActSearch extends AppCompatActivity implements
                     getString(R.string.msg_searching));
             mProgress.show();
 
-            Services.getInstance(appCtx, this).searchMovies(searchTerm, REQUEST_TAG);
+            Services.getInstance(appCtx).searchMovies(this, searchTerm, REQUEST_TAG);
         } else {
             Toast.makeText(this, R.string.msg_fill_in_search_term, Toast.LENGTH_LONG).show();
         }
@@ -168,7 +167,7 @@ public class ActSearch extends AppCompatActivity implements
 
         this.mMovieAdapter = new MovieAdapter(
                 listMovies,
-                Services.getInstance(appCtx, this).getImageLoader(),
+                Services.getInstance(appCtx).getImageLoader(this),
                 true,
                 this
         );

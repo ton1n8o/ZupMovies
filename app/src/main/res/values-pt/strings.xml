@@ -29,8 +29,9 @@
     <string name="msg_title_please_wait">Por favor aguarde</string>
     <string name="msg_searching">Pesquiando...</string>
     <string name="msg_info">Informação</string>
-    <string name="msb_movie_saved">Filmo salvo</string>
+    <string name="msb_movie_saved">Filme salvo</string>
     <string name="msg_loading">Carregando...</string>
     <string name="msg_url_encoding_error">"Erro ao montar url: "</string>
     <string name="msg_error">Erro</string>
+    <string name="msg_movie_deleted">Filme excluído</string>
 </resources>

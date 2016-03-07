@@ -19,6 +19,7 @@ import butterknife.OnClick;
 import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.adapters.MovieAdapter;
 import zup.com.br.zupmovies.domains.Movie;
+import zup.com.br.zupmovies.services.Services;
 import zup.com.br.zupmovies.util.Constants;
 
 /**
@@ -47,6 +48,8 @@ public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_main);
         ButterKnife.bind(this);
+
+//        Services.getInstance(this.getApplicationContext(), this).getImageLoader(),
 
         this.setupRecyclerView();
 
