@@ -34,4 +34,5 @@
     <string name="msg_url_encoding_error">"Erro ao montar url: "</string>
     <string name="msg_error">Erro</string>
     <string name="msg_movie_deleted">Filme excluído</string>
+    <string name="lbl_sort">Ordenar</string>
 </resources>
