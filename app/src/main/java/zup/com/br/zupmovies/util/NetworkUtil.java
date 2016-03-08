@@ -3,7 +3,6 @@ package zup.com.br.zupmovies.util;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.NonNull;
 
 
 /**
@@ -11,7 +10,29 @@ import android.support.annotation.NonNull;
  */
 public class NetworkUtil {
 
-    public static boolean isConected(@NonNull Context context) {
+    private static NetworkUtil networkUtil;
+    private static Context context;
+
+    private NetworkUtil(Context c) {
+        context = c;
+    }
+
+    public static NetworkUtil getInstance(Context c) {
+        if (networkUtil == null) {
+            networkUtil = new NetworkUtil(c);
+        }
+        return networkUtil;
+    }
+
+    public static NetworkUtil getInstance() {
+        if (networkUtil == null) {
+            throw new IllegalStateException(NetworkUtil.class.getSimpleName() +
+                    " is not initialized, call getInstance(..) method first.");
+        }
+        return networkUtil;
+    }
+
+    public static boolean isConected() {
 
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 

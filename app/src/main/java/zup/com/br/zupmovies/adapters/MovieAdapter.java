@@ -17,6 +17,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.domains.Movie;
+import zup.com.br.zupmovies.util.NetworkUtil;
 
 /**
  * @author ton1n8o - antoniocarlos.dev@gmail.com on 3/4/16.
@@ -58,18 +59,18 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         holder.actors.setText(mShowMovieType ? m.getType() : m.getActors()); // only to populate this fild
         holder.director.setText(m.getDirector());
 
-            if (m.getPosterData() != null) {
-                // load image from byte array
-                holder.poster.setImageBitmap(
-                        BitmapFactory.decodeByteArray(m.getPosterData(), 0, m.getPosterData().length)
-                );
-            } else if (!TextUtils.isEmpty(m.getPoster())) {
-                this.mImageLoader.get(m.getPoster(), ImageLoader.getImageListener(
-                        holder.poster, R.drawable.ic_zup_movies, R.drawable.ic_zup_movies
-                ));
-            } else {
-                holder.poster.setImageResource(R.drawable.ic_zup_movies);
-            }
+        if (NetworkUtil.isConected() && !TextUtils.isEmpty(m.getPoster())) {
+            this.mImageLoader.get(m.getPoster(), ImageLoader.getImageListener(
+                    holder.poster, R.drawable.ic_zup_movies, R.drawable.ic_zup_movies
+            ));
+        } else if (m.getPosterData() != null) {
+            // load image from byte array
+            holder.poster.setImageBitmap(
+                    BitmapFactory.decodeByteArray(m.getPosterData(), 0, m.getPosterData().length)
+            );
+        } else {
+            holder.poster.setImageResource(R.drawable.ic_zup_movies);
+        }
 
     }
 

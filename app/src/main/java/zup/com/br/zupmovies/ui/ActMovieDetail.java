@@ -1,7 +1,6 @@
 package zup.com.br.zupmovies.ui;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -72,7 +71,6 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
     LinearLayout llPlot;
 
     /*Variables*/
-    private Context appCtx;
     private boolean newMovie;
     private Movie mMovie;
     private ProgressDialog mProgress;
@@ -84,8 +82,6 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_movie_detail);
         ButterKnife.bind(this);
-
-        appCtx = this.getApplicationContext();
 
         mProgress = Util.createProgressDialog(this, getString(R.string.msg_title_please_wait),
                 getString(R.string.msg_loading));
@@ -107,11 +103,17 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
                 this.loadDetails(mMovie);
             }
         }
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
+        }
     }
 
     @Override
     public void onBackPressed() {
-        Services.getInstance(appCtx).getRequestQueue().cancelAll(REQUEST_TAG);
+        Services.getInstance().getRequestQueue().cancelAll(REQUEST_TAG);
         super.onBackPressed();
     }
 
@@ -138,6 +140,10 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
                 this.confirmDelete();
                 break;
             }
+            case android.R.id.home:{
+                onBackPressed();
+                break;
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -148,7 +154,7 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
         if (mMovie != null) {
 
             if (Movie.findByImdbId(mMovie.getImdbID()) != null) {
-                Toast.makeText(this, R.string.msg_movie_duplicated, Toast.LENGTH_LONG).show();
+                Util.createDialog(this, null, getString(R.string.msg_movie_duplicated)).show();
                 return;
             }
 
@@ -252,7 +258,7 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
                     BitmapFactory.decodeByteArray(movie.getPosterData(), 0, movie.getPosterData().length)
             );
         } else if (!TextUtils.isEmpty(movie.getPoster())) {
-            Services.getInstance(appCtx).getImageLoader(this).get(movie.getPoster(), ImageLoader.getImageListener(
+            Services.getInstance().getImageLoader(this).get(movie.getPoster(), ImageLoader.getImageListener(
                     imageView, R.drawable.ic_zup_movies, R.drawable.ic_zup_movies
             ));
         } else {
@@ -269,9 +275,7 @@ public class ActMovieDetail extends AppCompatActivity implements Services.OnServ
 
     private void loadDetails(Movie movie) {
         if (!TextUtils.isEmpty(movie.getImdbID())) {
-            //TODO: avaliar...
-            Services.getInstance(appCtx).searchLoadMovieDetail(this, movie.getImdbID(), REQUEST_TAG);
-//            Services.getInstanceAsync(this).searchAsync(movie.getImdbID());
+            Services.getInstance().searchByImdbId(this, movie.getImdbID(), REQUEST_TAG);
         } else {
             Toast.makeText(this, R.string.msg_error_on_search, Toast.LENGTH_LONG).show();
             onBackPressed();

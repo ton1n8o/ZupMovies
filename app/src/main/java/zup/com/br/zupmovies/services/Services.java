@@ -2,7 +2,6 @@ package zup.com.br.zupmovies.services;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
@@ -20,8 +19,6 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.json.JSONObject;
 
@@ -30,7 +27,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.msebera.android.httpclient.Header;
 import zup.com.br.zupmovies.R;
 import zup.com.br.zupmovies.domains.Movie;
 import zup.com.br.zupmovies.domains.SearchResponse;
@@ -55,7 +51,6 @@ public class Services {
     /*Variables*/
 
     private static Services mInstance;
-    private static Services mInstanceAsynHttp;
     private static Context mCtx;
     private static OnServiceResponse mResponseHandler;
 
@@ -64,8 +59,6 @@ public class Services {
     private Gson gson = new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
             .create();
-
-    private static AsyncHttpClient asyncHttpClient;
 
     /*Constructors*/
 
@@ -93,36 +86,6 @@ public class Services {
 
     }
 
-    private Services() {
-    }
-
-    public static Services getInstanceAsync(OnServiceResponse onServiceResponse) {
-
-        try {
-            mResponseHandler = onServiceResponse;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(mCtx.toString() + " must implement Services.OnServiceResponse");
-        }
-
-        if (mInstanceAsynHttp == null) {
-            mInstanceAsynHttp = new Services();
-            asyncHttpClient = new AsyncHttpClient();
-            asyncHttpClient.setTimeout(60 * 1000); // 1 minute
-        }
-        return mInstanceAsynHttp;
-    }
-
-    public void searchAsync(String searchTerm) {
-        try {
-            searchTerm = URLEncoder.encode(searchTerm.trim(), "UTF-8");
-            String url = buildSearchRequestUrl(searchTerm, PARSER_DETAIL);
-            asyncHttpClient.get(url, null, new MyAsyncHttpResponseHandler(Looper.getMainLooper()));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            mResponseHandler.onError(mCtx.getString(R.string.msg_url_encoding_error) + e.getMessage());
-        }
-    }
-
     /*Public Methods*/
 
     /**
@@ -144,17 +107,17 @@ public class Services {
                 PARSER_LIST
         );
 
-        if (jsonObjReq!= null) {
+        if (jsonObjReq != null) {
             addToRequestQueue(jsonObjReq);
         }
 
     }
 
     /**
-     * @param imdbID movie imdbId.
+     * @param imdbID     movie imdbId.
      * @param requestTag Tag used to cancel all requests.
      */
-    public void searchLoadMovieDetail(OnServiceResponse onServiceResponse, @NonNull String imdbID, @NonNull String requestTag) {
+    public void searchByImdbId(OnServiceResponse onServiceResponse, @NonNull String imdbID, @NonNull String requestTag) {
 
         mResponseHandler = onServiceResponse;
 
@@ -169,7 +132,7 @@ public class Services {
                 PARSER_DETAIL
         );
 
-        if (jsonObjReq!= null) {
+        if (jsonObjReq != null) {
             addToRequestQueue(jsonObjReq);
         }
 
@@ -177,6 +140,7 @@ public class Services {
 
     /**
      * Set a tag used to cancel all requests with it.
+     *
      * @return JsonObjectRequest.
      */
     private JsonObjectRequest buildJsonOjbectRequest(String searhTerm, String requestTag, int parserType) {
@@ -212,6 +176,14 @@ public class Services {
         return mInstance;
     }
 
+    public static synchronized Services getInstance() {
+        if (mInstance == null) {
+            throw new IllegalStateException(Services.class.getSimpleName() +
+                    " is not initialized, call getInstance(..) method first.");
+        }
+        return mInstance;
+    }
+
     public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
             // getApplicationContext() is key, it keeps you from leaking the
@@ -227,6 +199,10 @@ public class Services {
 
     public ImageLoader getImageLoader(OnServiceResponse onServiceResponse) {
         mResponseHandler = onServiceResponse;
+        return mImageLoader;
+    }
+
+    public ImageLoader getImageLoader() {
         return mImageLoader;
     }
 
@@ -317,31 +293,10 @@ public class Services {
      */
     public interface OnServiceResponse {
         void onResponse(Movie movie);
+
         void onResponse(List<Movie> movies);
+
         void onError(String msg);
     }
 
-    private class MyAsyncHttpResponseHandler extends AsyncHttpResponseHandler {
-
-        public MyAsyncHttpResponseHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
-            Gson gson = new GsonBuilder()
-                    .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                    .create();
-
-            Movie listResponse = gson.fromJson(new String(responseBody), Movie.class);
-            mResponseHandler.onResponse(validadeProperties(listResponse));
-
-        }
-
-        @Override
-        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable throwable) {
-            mResponseHandler.onError(throwable.getMessage());
-        }
-    }
 }

@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -25,7 +27,8 @@ import zup.com.br.zupmovies.util.Constants;
 /**
  * @author ton1n8o - antoniocarlos.dev@gmail.com on 3/3/16.
  */
-public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardClickListener {
+public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardClickListener,
+        PopupMenu.OnMenuItemClickListener {
 
     /*Constants*/
 
@@ -49,14 +52,13 @@ public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardCli
         setContentView(R.layout.act_main);
         ButterKnife.bind(this);
 
-//        Services.getInstance(this.getApplicationContext(), this).getImageLoader(),
-
         this.setupRecyclerView();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         this.showMovies(Movie.findAll(Movie.SORT_BY_NAME_DESC));
+
     }
 
     @Override
@@ -79,13 +81,66 @@ public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardCli
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_sort_by) {
+            View menuItemView = findViewById(R.id.action_sort_by);
+            showPopupMenu(menuItemView);
+        }
+        return true;
+    }
 
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    @OnClick(R.id.fabAddMovie)
+    void showSearch() {
+        this.startActivityForResult(new Intent(this, ActSearch.class), Constants.MOVIE_UPDATE);
+    }
 
-        switch (id) {
+    /* Private Methods */
+
+    private void setupRecyclerView() {
+        recyclerViewList.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerViewList.setLayoutManager(llm);
+    }
+
+    private void showMovies(List<Movie> listMovies) {
+        this.mMovieAdapter = new MovieAdapter(
+                listMovies,
+                Services.getInstance().getImageLoader(),
+                false,
+                this
+        );
+        recyclerViewList.setAdapter(this.mMovieAdapter);
+        tvNodata.setVisibility(listMovies.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void showMovieDetails(Movie movie) {
+        Intent i = new Intent(this, ActMovieDetail.class);
+        i.putExtra(MOVIE_ID, movie.getId());
+        this.startActivityForResult(i, Constants.MOVIE_UPDATE);
+    }
+
+    private void showPopupMenu(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        popup.setOnMenuItemClickListener(this);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.menu_main_options, popup.getMenu());
+        popup.show();
+    }
+
+
+    // MovieAdapter.OnCardClickListener
+
+    @Override
+    public void onCardClick(int position) {
+        Movie m = this.mMovieAdapter.getItem(position);
+        this.showMovieDetails(m);
+    }
+
+    // PopupMenu.OnMenuItemClickListener
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.action_order_by_date: {
                 lastSort = (lastSort == Movie.SORT_BY_DATE_DESC) ?
                         Movie.SORT_BY_DATE_ASC : Movie.SORT_BY_DATE_DESC;
@@ -104,46 +159,8 @@ public class ActMain extends AppCompatActivity implements MovieAdapter.OnCardCli
                 this.showMovies(Movie.findAll(lastSort));
                 break;
             }
-            case android.R.id.home:
-                // ProjectsActivity is my 'home' activity
-                super.onBackPressed();
-                return true;
         }
-
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
-    @OnClick(R.id.fabAddMovie)
-    void showSearch() {
-        this.startActivityForResult(new Intent(this, ActSearch.class), Constants.MOVIE_UPDATE);
-    }
-
-    /* Private Methods */
-
-    private void setupRecyclerView() {
-        recyclerViewList.setHasFixedSize(true);
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerViewList.setLayoutManager(llm);
-    }
-
-    private void showMovies(List<Movie> listMovies) {
-        this.mMovieAdapter = new MovieAdapter(listMovies, this);
-        recyclerViewList.setAdapter(this.mMovieAdapter);
-        tvNodata.setVisibility(listMovies.isEmpty() ? View.VISIBLE : View.GONE);
-    }
-
-    private void showMovieDetails(Movie movie) {
-        Intent i = new Intent(this, ActMovieDetail.class);
-        i.putExtra(MOVIE_ID, movie.getId());
-        this.startActivityForResult(i, Constants.MOVIE_UPDATE);
-    }
-
-    // MovieAdapter.OnCardClickListener
-
-    @Override
-    public void onCardClick(int position) {
-        Movie m = this.mMovieAdapter.getItem(position);
-        this.showMovieDetails(m);
-    }
 }

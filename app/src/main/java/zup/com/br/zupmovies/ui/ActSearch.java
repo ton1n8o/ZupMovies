@@ -2,13 +2,13 @@ package zup.com.br.zupmovies.ui;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -51,7 +51,6 @@ public class ActSearch extends AppCompatActivity implements
     TextView tvNodata;
 
     /*Variables*/
-    private Context appCtx;
     private ArrayList<Movie> moviesList;
     private ProgressDialog mProgress;
     private MovieAdapter mMovieAdapter;
@@ -67,10 +66,13 @@ public class ActSearch extends AppCompatActivity implements
 
         this.setupRecyclerView();
 
-        appCtx = this.getApplicationContext();
         if (savedInstanceState != null) {
             moviesList = savedInstanceState.getParcelableArrayList(MOVIES_LIST);
             showMovies(moviesList);
+        }
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
         }
 
     }
@@ -107,7 +109,15 @@ public class ActSearch extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-        Services.getInstance(appCtx).getRequestQueue().cancelAll(REQUEST_TAG);
+        Services.getInstance().getRequestQueue().cancelAll(REQUEST_TAG);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+        }
+        return  true;
     }
 
     /* Activity Controls */
@@ -132,7 +142,7 @@ public class ActSearch extends AppCompatActivity implements
 
     private void doSearch() {
 
-        if (!NetworkUtil.isConected(appCtx)) {
+        if (!NetworkUtil.isConected()) {
             Util.createDialog(this, null, getString(R.string.msg_no_connection)).show();
             return;
         }
@@ -144,7 +154,7 @@ public class ActSearch extends AppCompatActivity implements
                     getString(R.string.msg_searching));
             mProgress.show();
 
-            Services.getInstance(appCtx).searchMovies(this, searchTerm, REQUEST_TAG);
+            Services.getInstance().searchMovies(this, searchTerm, REQUEST_TAG);
         } else {
             Toast.makeText(this, R.string.msg_fill_in_search_term, Toast.LENGTH_LONG).show();
         }
@@ -167,7 +177,7 @@ public class ActSearch extends AppCompatActivity implements
 
         this.mMovieAdapter = new MovieAdapter(
                 listMovies,
-                Services.getInstance(appCtx).getImageLoader(this),
+                Services.getInstance().getImageLoader(this),
                 true,
                 this
         );
@@ -212,7 +222,7 @@ public class ActSearch extends AppCompatActivity implements
     public void onCardClick(int position) {
         Movie m = this.mMovieAdapter.getItem(position);
 
-        if (!NetworkUtil.isConected(appCtx)) {
+        if (!NetworkUtil.isConected()) {
             Util.createDialog(this, null, getString(R.string.msg_no_connection)).show();
             return;
         }
