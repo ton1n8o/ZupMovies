@@ -1,6 +1,6 @@
-#zupmovies
+# zupmovies
 
-##Projeto teste Android proposto pela empresa Zup.
+## Projeto teste Android proposto pela empresa Zup.
 
 **Objetivo:** Consumir serviço REST do site (http://www.omdbapi.com/) e permitir ao usuário salvar os filmes pesquisados para acesso offline.
 
